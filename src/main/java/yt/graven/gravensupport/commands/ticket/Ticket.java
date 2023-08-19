@@ -376,7 +376,7 @@ public class Ticket {
             Collections.reverse(messages);
 
             SerializableMessageArray sma = new SerializableMessageArray(
-                    config.getString("config.ticket_guild.channels_ids.attachements"), from);
+                    config.getString("config.ticket_guild.channels_ids.attachments"), from);
 
             messages.forEach(sma::addMessage);
 
@@ -388,6 +388,7 @@ public class Ticket {
                     .addFiles(FileUpload.fromData(json.getBytes(StandardCharsets.UTF_8), to.getName() + ".json"))
                     .complete();
 
+            String readerBaseUrl = config.getString("config.reader.base_url");
             String reportJsonUrl = report.getAttachments().get(0).getUrl();
             TextChannel ticketsChannel =
                     moderationGuild.getTextChannelById(config.getString("config.ticket_guild.channels_ids.tickets"));
@@ -399,8 +400,7 @@ public class Ticket {
                             .addButton(
                                     button -> button.setText("Aller au rapport").setLink(report.getJumpUrl()))
                             .addButton(button -> button.setText("Consulter le rapport (en ligne)")
-                                    .setLink("https://redstom.github.io/GravenDev-TicketReader/?input=%s"
-                                            .formatted(reportJsonUrl))))
+                                    .setLink("%s?input=%s".formatted(readerBaseUrl, reportJsonUrl))))
                     .send(ticketsChannel)
                     .queue();
             // spotless:on
