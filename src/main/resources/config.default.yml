@@ -1,5 +1,7 @@
 config:
   token: ''
+  reader:
+    base_url: ''
 
   ticket_guild:
     guild_id: 0
@@ -8,4 +10,4 @@ config:
     channels_ids:
       reports: 0
       tickets: 0
-      attachements: 0
+      attachments: 0
