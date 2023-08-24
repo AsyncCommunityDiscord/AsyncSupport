@@ -2,14 +2,15 @@ package yt.graven.gravensupport.utils.messages.serializable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import java.io.File;
+
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -23,7 +24,7 @@ public class SerializableMessageArray {
     public User fromUser;
 
     @Expose(deserialize = false, serialize = false)
-    private String attachementsChannelId;
+    private String attachmentsChannelId;
 
     @Expose
     @SerializedName("to")
@@ -32,8 +33,8 @@ public class SerializableMessageArray {
     @Expose
     private List<SerializableMessage> messages = new ArrayList<>();
 
-    public SerializableMessageArray(String attachementsChannelId, User from) {
-        this.attachementsChannelId = attachementsChannelId;
+    public SerializableMessageArray(String attachmentsChannelId, User from) {
+        this.attachmentsChannelId = attachmentsChannelId;
         this.fromUser = from;
 
         this.from = new SerializableMessageAuthor();
@@ -43,48 +44,52 @@ public class SerializableMessageArray {
     }
 
     public void addMessage(Message message) {
-        SerializableMessage sMessage = new SerializableMessage();
-        sMessage.setMessageType(MessageType.MODERATION);
+        SerializableMessage serializableMessage = serializeMessage(message);
+        serializableMessage.addAttachments(sendAttachments(message));
+        serializableMessage.addEmbeds(message.getEmbeds());
 
-        SerializableMessageAuthor author = new SerializableMessageAuthor();
-        if (message.getAuthor().getDiscriminator().equalsIgnoreCase("0000")) {
-            author.setAvatarUrl(fromUser.getAvatarUrl());
-            author.setName(fromUser.getAsTag());
-            author.setId(fromUser.getIdLong());
+        messages.add(serializableMessage);
+    }
 
-            sMessage.setMessageType(MessageType.TARGET);
-        } else {
-            author.setAvatarUrl(message.getAuthor().getAvatarUrl());
-            author.setName(message.getAuthor().getAsTag());
-            author.setId(message.getAuthor().getIdLong());
+    private List<Message.Attachment> sendAttachments(Message message) {
+        if (message.getAttachments().isEmpty()) {
+            return List.of();
         }
 
-        sMessage.setAuthor(author);
-        sMessage.setContent(message.getContentRaw());
-        sMessage.setEdited(message.isEdited());
-        sMessage.setCreationTimestamp(message.getTimeCreated().toInstant());
+        List<Message.Attachment> attachmentAccumulator = new ArrayList<>();
 
-        if (message.getAttachments().size() != 0) {
-            TextChannel channel = fromUser.getJDA().getTextChannelById(attachementsChannelId);
-            message.getAttachments().forEach(attachment -> {
-                CompletableFuture<InputStream> attachmentStream = attachment.getProxy().download();
-                Message msg = channel.sendMessage(
-                                "Attachment of @" + message.getAuthor().getAsTag())
-                        .addFiles(FileUpload.fromData(attachmentStream.join(), attachment.getFileName()))
-                        .complete();
+        TextChannel attachmentsChannel = Optional.ofNullable(message.getJDA().getTextChannelById(attachmentsChannelId))
+                .orElseThrow();
 
-                for (Message.Attachment msgAttachment : msg.getAttachments()) {
-                    sMessage.getAttachementUrls().add(msgAttachment.getUrl());
-                }
-            });
+        for (Message.Attachment attachment : message.getAttachments()) {
+            CompletableFuture<InputStream> attachmentStream = attachment.getProxy().download();
+            Message attachmentMessage = attachmentsChannel.sendMessage("Attachment of @" + message.getAuthor().getAsTag())
+                    .addFiles(FileUpload.fromData(attachmentStream.join(), attachment.getFileName()))
+                    .complete();
+
+            attachmentAccumulator.addAll(attachmentMessage.getAttachments());
         }
 
-        if (message.getEmbeds().size() != 0) {
-            for (MessageEmbed embed : message.getEmbeds()) {
-                sMessage.addEmbed(embed);
-            }
-        }
+        return Collections.unmodifiableList(attachmentAccumulator);
+    }
 
-        messages.add(sMessage);
+    private SerializableMessage serializeMessage(Message message) {
+        SerializableMessage serializableMessage = new SerializableMessage();
+
+        SerializableMessageAuthor serializableAuthor = new SerializableMessageAuthor();
+        MessageType messageType = MessageType.fromMessage(message);
+        User author = messageType == MessageType.TARGET ? fromUser : message.getAuthor();
+
+        serializableAuthor.setAvatarUrl(author.getAvatarUrl());
+        serializableAuthor.setName(author.getAsTag());
+        serializableAuthor.setId(author.getIdLong());
+
+        serializableMessage.setMessageType(messageType);
+
+        serializableMessage.setAuthor(serializableAuthor);
+        serializableMessage.setContent(message.getContentRaw());
+        serializableMessage.setEdited(message.isEdited());
+        serializableMessage.setCreationTimestamp(message.getTimeCreated().toInstant());
+        return serializableMessage;
     }
 }

@@ -258,13 +258,12 @@ public class Ticket {
 
     private WebhookClient retrieveWebhook() throws IOException {
         List<Webhook> webhooks = to.retrieveWebhooks().complete();
-        return JDAWebhookClient.from(
-                switch (webhooks.size()) {
-                    case 0 -> to.createWebhook(from.getName())
-                            .setAvatar(Icon.from(new URL(from.getEffectiveAvatarUrl()).openStream()))
-                            .complete();
-                    default -> webhooks.get(0);
-                });
+        return JDAWebhookClient.from(webhooks.isEmpty()
+                ? to.createWebhook(from.getName())
+                        .setAvatar(Icon.from(new URL(from.getEffectiveAvatarUrl()).openStream()))
+                        .complete()
+                : webhooks.get(0)
+        );
     }
 
     public TextChannel getTo() {
@@ -304,7 +303,7 @@ public class Ticket {
                         String.format("[%s](%s)", message.getId(), message.getJumpUrl()),
                         true);
 
-        if (message.getAttachments().size() != 0) {
+        if (!message.getAttachments().isEmpty()) {
             confirmEmbed.addField(
                     "📎 Pièces jointes :",
                     "`"
@@ -366,13 +365,7 @@ public class Ticket {
 
     public void close() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<Message> messages = null;
-            try {
-                messages =
-                        to.getIterableHistory().takeWhileAsync(Objects::nonNull).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            List<Message> messages = to.getIterableHistory().takeWhileAsync(Objects::nonNull).join();
             Collections.reverse(messages);
 
             SerializableMessageArray sma = new SerializableMessageArray(
@@ -423,11 +416,11 @@ public class Ticket {
                 MessageEmbed embed = embeds.error(errorMessage).build();
 
                 // spotless:off
-                        MessageFactory.create()
-                                .addEmbeds(embed)
-                                .send(ticketsChannel)
-                                .queue();
-                        // spotless:on
+                MessageFactory.create()
+                        .addEmbeds(embed)
+                        .send(ticketsChannel)
+                        .queue();
+                // spotless:on
             });
 
             to.delete().queue(ignored -> ticketManager.remove(from));
