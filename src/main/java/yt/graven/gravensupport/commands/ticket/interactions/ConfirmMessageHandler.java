@@ -66,10 +66,10 @@ public class ConfirmMessageHandler implements InteractionAction<ButtonInteractio
             return;
         }
 
-        boolean attachements = referingMessage.getAttachments().size() != 0;
+        boolean attachments = !referingMessage.getAttachments().isEmpty();
 
         InteractionHook interaction = null;
-        if (attachements) {
+        if (attachments) {
             interaction = event.deferReply().complete();
         }
 
@@ -90,7 +90,7 @@ public class ConfirmMessageHandler implements InteractionAction<ButtonInteractio
                     embed.getFields()
                             .add(new MessageEmbed.Field("🔗 Identifiant du message envoyé", message.getId(), true));
 
-                    if (attachements) {
+                    if (attachments) {
                         fInteraction.deleteOriginal().queue();
                         embedMessage
                                 .editMessageEmbeds(embed.build())

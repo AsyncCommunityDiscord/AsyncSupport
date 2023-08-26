@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class SerializableMessageArray {
 
     @Expose
-    private final int version = 1;
+    private final int version = 2;
 
     @Expose(deserialize = false, serialize = false)
     public User fromUser;

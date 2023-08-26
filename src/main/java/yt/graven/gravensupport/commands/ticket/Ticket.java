@@ -13,9 +13,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
@@ -41,11 +42,11 @@ public class Ticket {
     private final TicketManager ticketManager;
     private final Embeds embeds;
     private final YamlConfiguration config;
-    private final User from;
+    @Getter private final User from;
     private final Guild moderationGuild;
     private final Emoji sentEmote;
-    private TextChannel to;
-    private boolean opened;
+    @Getter private TextChannel to;
+    @Getter private boolean opened;
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -207,7 +208,7 @@ public class Ticket {
                     reasonMessage.addActionRow(actionRow -> actionRow.addButton(
                                     "open-with-reported;%s".formatted(user.getId()), button -> button
                                             .setText("Ouvrir un ticket avec la personne signalée")
-                                            .setEmoji(Emoji.fromUnicode("↗\uFE0F"))
+                                            .setEmoji(Emoji.fromUnicode("↗️"))
                             )
                     );
                 }
@@ -264,18 +265,6 @@ public class Ticket {
                         .complete()
                 : webhooks.get(0)
         );
-    }
-
-    public TextChannel getTo() {
-        return to;
-    }
-
-    public User getFrom() {
-        return from;
-    }
-
-    public boolean isOpened() {
-        return opened;
     }
 
     public void sendToTicket(Message message) {

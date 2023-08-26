@@ -25,7 +25,6 @@ public class SerializableMessage {
     private String content = "";
 
     @Expose
-    @com.google.gson.annotations.SerializedName("attachementUrls")
     private List<String> attachmentUrls = new ArrayList<>();
 
     @Expose

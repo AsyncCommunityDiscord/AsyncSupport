@@ -57,12 +57,14 @@ public class ModTicketCommand implements ICommand {
 
     @Override
     public void run(SlashCommandInteractionEvent event) throws TicketException, IOException, CommandCancelledException {
-        switch (event.getSubcommandName()) {
-            case "open-with" -> this.runWithSelectedUser(event);
-            default -> event.reply("Cette commande n'est pas encore implémentée.")
-                    .setEphemeral(true)
-                    .queue();
+        if (event.getSubcommandName().equals("open-with")) {
+            this.runWithSelectedUser(event);
+            return;
         }
+
+        event.reply("Cette commande n'est pas encore implémentée.")
+                .setEphemeral(true)
+                .queue();
     }
 
     private void runWithSelectedUser(SlashCommandInteractionEvent event) throws IOException, TicketException {
@@ -102,7 +104,7 @@ public class ModTicketCommand implements ICommand {
         String reason = reasonOption.getAsString();
 
         if (ticketManager.exists(user)) {
-            embeds.ticketAlreadyExistsMessage(ticketManager.get(user).get().getTo(), false)
+            embeds.ticketAlreadyExistsMessage(ticketManager.get(user).orElseThrow().getTo(), false)
                     .editReply(reply)
                     .queue();
             return;

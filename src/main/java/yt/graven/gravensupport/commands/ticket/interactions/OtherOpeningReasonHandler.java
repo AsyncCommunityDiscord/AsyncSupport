@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.springframework.stereotype.Component;
 import yt.graven.gravensupport.commands.ticket.Ticket;
 import yt.graven.gravensupport.commands.ticket.TicketManager;
@@ -42,9 +43,11 @@ public class OtherOpeningReasonHandler implements InteractionAction<ModalInterac
             return;
         }
 
-        String reason = event.getValue("reason").getAsString();
+        String reason = Optional.ofNullable(event.getValue("reason"))
+                .map(ModalMapping::getAsString)
+                .orElse("");
 
-        if (reason == null || reason.isEmpty()) {
+        if (reason.isEmpty()) {
             event.deferReply(true)
                     .addEmbeds(embeds.error("Vous devez entrer une raison pour ouvrir un ticket.")
                             .build())
