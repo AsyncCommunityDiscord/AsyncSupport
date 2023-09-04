@@ -8,6 +8,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 @Data
@@ -24,7 +25,7 @@ public class SerializableMessage {
     private String content = "";
 
     @Expose
-    private List<String> attachementUrls = new ArrayList<>();
+    private List<String> attachmentUrls = new ArrayList<>();
 
     @Expose
     private boolean edited = false;
@@ -33,10 +34,22 @@ public class SerializableMessage {
     private MessageType messageType;
 
     @Expose
-    private List<Map<String, Object>> embeds = new ArrayList<java.util.Map<String, Object>>();
+    private List<Map<String, Object>> embeds = new ArrayList<>();
 
     public void setCreationTimestamp(Instant creationTimestamp) {
         this.creationTimestamp = creationTimestamp.toEpochMilli();
+    }
+
+    public void addAttachments(List<Message.Attachment> attachments) {
+        attachments.forEach(this::addAttachment);
+    }
+
+    public void addAttachment(Message.Attachment attachment) {
+        this.attachmentUrls.add(attachment.getUrl());
+    }
+
+    public void addEmbeds(List<MessageEmbed> embeds) {
+        embeds.forEach(this::addEmbed);
     }
 
     public void addEmbed(MessageEmbed embed) {

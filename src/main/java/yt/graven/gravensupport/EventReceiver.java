@@ -62,7 +62,7 @@ public class EventReceiver extends ListenerAdapter {
         try {
             ticketManager.load(event.getJDA());
         } catch (TicketException e) {
-            e.printStackTrace();
+            log.error("", e);
         }
 
         loaded = true;
@@ -88,7 +88,8 @@ public class EventReceiver extends ListenerAdapter {
          */
         if (event.getChannelType() == ChannelType.PRIVATE) {
             if (!ticketManager.exists(event.getAuthor())) return;
-            Ticket ticket = ticketManager.get(event.getAuthor()).get();
+            Ticket ticket = ticketManager.get(event.getAuthor())
+                    .orElseThrow(() -> new RuntimeException("Ticket could not be found but exists"));
 
             if (!ticket.isOpened()) return;
 
@@ -101,7 +102,7 @@ public class EventReceiver extends ListenerAdapter {
          */
         if (event.getChannelType() == ChannelType.TEXT) {
 
-            if (event.getMessage().getContentRaw().length() == 0) return;
+            if (event.getMessage().getContentRaw().isEmpty()) return;
 
             if (!event.getMessage().getContentRaw().startsWith("'")) return;
 
@@ -129,7 +130,7 @@ public class EventReceiver extends ListenerAdapter {
             try {
                 a.run(context, event);
             } catch (TicketException | IOException e) {
-                e.printStackTrace();
+                log.error("", e);
             }
         });
     }
@@ -141,7 +142,7 @@ public class EventReceiver extends ListenerAdapter {
                     try {
                         a.run(context, event);
                     } catch (TicketException | IOException e) {
-                        e.printStackTrace();
+                        log.error("", e);
                     }
                 });
     }
@@ -152,7 +153,7 @@ public class EventReceiver extends ListenerAdapter {
             try {
                 a.run(context, event);
             } catch (TicketException | IOException e) {
-                e.printStackTrace();
+                log.error("", e);
             }
         });
     }

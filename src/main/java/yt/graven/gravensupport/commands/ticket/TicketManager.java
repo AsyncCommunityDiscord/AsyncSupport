@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -15,6 +16,7 @@ import yt.graven.gravensupport.utils.exceptions.TicketAlreadyExistsException;
 import yt.graven.gravensupport.utils.exceptions.TicketException;
 import yt.graven.gravensupport.utils.messages.Embeds;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TicketManager {
@@ -86,7 +88,7 @@ public class TicketManager {
             try {
                 store(Ticket.loadFromChannel(this, embeds, config, channel));
             } catch (IOException e) {
-                new TicketException("Impossible to load ticket from channel #" + channel.getName()).printStackTrace();
+                log.error("", new TicketException("Impossible to load ticket from channel #" + channel.getName()));
             }
         });
     }

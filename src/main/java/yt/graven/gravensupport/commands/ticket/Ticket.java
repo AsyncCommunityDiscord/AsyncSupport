@@ -13,9 +13,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
@@ -41,11 +42,11 @@ public class Ticket {
     private final TicketManager ticketManager;
     private final Embeds embeds;
     private final YamlConfiguration config;
-    private final User from;
+    @Getter private final User from;
     private final Guild moderationGuild;
     private final Emoji sentEmote;
-    private TextChannel to;
-    private boolean opened;
+    @Getter private TextChannel to;
+    @Getter private boolean opened;
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -207,7 +208,7 @@ public class Ticket {
                     reasonMessage.addActionRow(actionRow -> actionRow.addButton(
                                     "open-with-reported;%s".formatted(user.getId()), button -> button
                                             .setText("Ouvrir un ticket avec la personne signalée")
-                                            .setEmoji(Emoji.fromUnicode("↗\uFE0F"))
+                                            .setEmoji(Emoji.fromUnicode("↗️"))
                             )
                     );
                 }
@@ -258,25 +259,12 @@ public class Ticket {
 
     private WebhookClient retrieveWebhook() throws IOException {
         List<Webhook> webhooks = to.retrieveWebhooks().complete();
-        return JDAWebhookClient.from(
-                switch (webhooks.size()) {
-                    case 0 -> to.createWebhook(from.getName())
-                            .setAvatar(Icon.from(new URL(from.getEffectiveAvatarUrl()).openStream()))
-                            .complete();
-                    default -> webhooks.get(0);
-                });
-    }
-
-    public TextChannel getTo() {
-        return to;
-    }
-
-    public User getFrom() {
-        return from;
-    }
-
-    public boolean isOpened() {
-        return opened;
+        return JDAWebhookClient.from(webhooks.isEmpty()
+                ? to.createWebhook(from.getName())
+                        .setAvatar(Icon.from(new URL(from.getEffectiveAvatarUrl()).openStream()))
+                        .complete()
+                : webhooks.get(0)
+        );
     }
 
     public void sendToTicket(Message message) {
@@ -304,7 +292,7 @@ public class Ticket {
                         String.format("[%s](%s)", message.getId(), message.getJumpUrl()),
                         true);
 
-        if (message.getAttachments().size() != 0) {
+        if (!message.getAttachments().isEmpty()) {
             confirmEmbed.addField(
                     "📎 Pièces jointes :",
                     "`"
@@ -366,13 +354,7 @@ public class Ticket {
 
     public void close() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<Message> messages = null;
-            try {
-                messages =
-                        to.getIterableHistory().takeWhileAsync(Objects::nonNull).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            List<Message> messages = to.getIterableHistory().takeWhileAsync(Objects::nonNull).join();
             Collections.reverse(messages);
 
             SerializableMessageArray sma = new SerializableMessageArray(
@@ -423,11 +405,11 @@ public class Ticket {
                 MessageEmbed embed = embeds.error(errorMessage).build();
 
                 // spotless:off
-                        MessageFactory.create()
-                                .addEmbeds(embed)
-                                .send(ticketsChannel)
-                                .queue();
-                        // spotless:on
+                MessageFactory.create()
+                        .addEmbeds(embed)
+                        .send(ticketsChannel)
+                        .queue();
+                // spotless:on
             });
 
             to.delete().queue(ignored -> ticketManager.remove(from));
