@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -271,7 +272,12 @@ public class Ticket {
         Executors.newSingleThreadExecutor().execute(() -> {
             WebhookMessageBuilder builder = WebhookMessageAdapter.fromJDA(message);
             webhook.send(builder.build())
-                    .thenAccept(msg -> message.addReaction(sentEmote).queue())
+                    .thenAccept(msg -> {
+                        message.addReaction(sentEmote).queue();
+                        ticketManager.get(message.getAuthor())
+                                .map(Ticket::getTo)
+                                .ifPresent(textChannel -> textChannel.pinMessageById(msg.getId()).queue());
+                    })
                     .exceptionally((error) -> {
                         message.addReaction(Emoji.fromUnicode("❌")).queue();
                         return null;
