@@ -59,7 +59,7 @@ public class FirstSentenceHandler implements InteractionAction<StringSelectInter
                             MessageFactory.create()
                                     .addEmbeds(embed.build())
                                     .send(event.getChannel())
-                                    .queue();
+                                    .queue(message -> message.pin().queue());
                             event.getMessage().delete().queue();
                         },
                         err -> event.reply(embeds.errorMessage(err.getMessage()).build())

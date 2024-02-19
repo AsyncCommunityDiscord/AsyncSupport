@@ -90,6 +90,8 @@ public class ConfirmMessageHandler implements InteractionAction<ButtonInteractio
                     embed.getFields()
                             .add(new MessageEmbed.Field("🔗 Identifiant du message envoyé", message.getId(), true));
 
+                    referingMessage.pin().queue();
+
                     if (attachments) {
                         fInteraction.deleteOriginal().queue();
                         embedMessage
