@@ -3,16 +3,21 @@ package yt.graven.gravensupport.commands.ticket.interactions;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
+
+import club.minnced.discord.webhook.receive.ReadonlyMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.MiscUtil;
 import org.springframework.stereotype.Component;
 import yt.graven.gravensupport.commands.ticket.Ticket;
@@ -90,7 +95,7 @@ public class ConfirmMessageHandler implements InteractionAction<ButtonInteractio
                     embed.getFields()
                             .add(new MessageEmbed.Field("🔗 Identifiant du message envoyé", message.getId(), true));
 
-                    referingMessage.pin().queue();
+                    updatePinnedMessages(referingMessage);
 
                     if (attachments) {
                         fInteraction.deleteOriginal().queue();
@@ -132,4 +137,18 @@ public class ConfirmMessageHandler implements InteractionAction<ButtonInteractio
                     return null;
                 });
     }
+
+    private void updatePinnedMessages(Message message) {
+        ErrorHandler handleMaxPinError = new ErrorHandler().handle(ErrorResponse.MAX_MESSAGE_PINS, (exception) -> {
+            MessageChannelUnion channel = message.getChannel();
+            channel.retrievePinnedMessages()
+                    .map(pinnedMessages -> pinnedMessages.get(pinnedMessages.size() - 1))
+                    .queue(oldestPinnedMessage ->
+                        channel.unpinMessageById(oldestPinnedMessage.getId())
+                                .queue(nothing -> message.pin().queue()));
+        });
+
+        message.pin().queue(null, handleMaxPinError);
+    }
+
 }
