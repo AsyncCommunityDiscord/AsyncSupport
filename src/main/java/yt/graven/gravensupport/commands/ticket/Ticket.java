@@ -2,6 +2,7 @@ package yt.graven.gravensupport.commands.ticket;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
+import club.minnced.discord.webhook.receive.ReadonlyMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.ICommandReference;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.simpleyaml.configuration.file.YamlConfiguration;
 import yt.graven.gravensupport.utils.WebhookMessageAdapter;
@@ -276,7 +277,7 @@ public class Ticket {
                         message.addReaction(sentEmote).queue();
                         ticketManager.get(message.getAuthor())
                                 .map(Ticket::getTo)
-                                .ifPresent(textChannel -> textChannel.pinMessageById(msg.getId()).queue());
+                                .ifPresent(textChannel -> updatePinnedMessages(textChannel, msg));
                     })
                     .exceptionally((error) -> {
                         message.addReaction(Emoji.fromUnicode("❌")).queue();
@@ -435,4 +436,22 @@ public class Ticket {
                 .queue();
         // spotless:on
     }
+
+    private void updatePinnedMessages(TextChannel textChannel, ReadonlyMessage msg) {
+        ErrorHandler handleMaxPinError = new ErrorHandler().handle(ErrorResponse.MAX_MESSAGE_PINS, (exception) -> {
+            textChannel.retrievePinnedMessages()
+                    .map(pinnedMessages -> pinnedMessages.get(pinnedMessages.size() - 1))
+                    .queue(oldestPinnedMessage -> {
+                        textChannel.unpinMessageById(oldestPinnedMessage.getId())
+                                .queue(nothing -> pinMessage(textChannel, msg).queue());
+                    });
+        });
+
+        pinMessage(textChannel, msg).queue(null, handleMaxPinError);
+    }
+
+    private RestAction<Void> pinMessage(TextChannel channel, ReadonlyMessage message) {
+        return channel.pinMessageById(message.getId());
+    }
+
 }
