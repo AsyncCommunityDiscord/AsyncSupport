@@ -128,6 +128,7 @@ public class Ticket {
                         .addSelectMenu("opening-menu", selectMenu -> selectMenu
                                 .addOption(Emoji.fromUnicode("📝"), "Signalement utilisateur", "op-user-report")
                                 .addOption(Emoji.fromUnicode("⛔"), "Contester une sanction", "op-unban")
+                                .addOption(Emoji.fromUnicode("\uD83C\uDFF7️"), "Proposer un tag", "op-tag")
                                 .addOption(Emoji.fromUnicode("✨"), "Proposer une amélioration", "op-enhancement")
                                 .addOption(Emoji.fromUnicode("\uD83D\uDCAC"), "Autre", "op-other")
                         )
