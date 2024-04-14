@@ -70,7 +70,7 @@ public class OpeningReasonHandler implements InteractionAction<StringSelectInter
                             .setTitle(":warning: Vous êtes sur le point de transmettre un signalement à la modération.")
                             .setDescription("""
                                     Avant de continuer, merci de vous assurer que vous avez en votre possession l'identifiant de l'utilisateur que vous souhaitez signaler.
-                                    :pencil: *Si vous ne savez pas comment le récupérer, merci de suivre les instructions indiquées sur [ce lien](<https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID->)*
+                                    :pencil: *Si vous ne savez pas comment le récupérer, merci de suivre les instructions indiquées sur [ce lien](<https://support.discord.com/hc/fr/articles/206346498-O%C3%B9-trouver-l-ID-de-mon-compte-utilisateur-serveur-message>)*
 
                                     Une fois que vous avez cette information en votre possession, vous pouvez cliquer sur le bouton ci-dessous :arrow_down:
                                     """)
