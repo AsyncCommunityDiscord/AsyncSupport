@@ -24,8 +24,8 @@ Most of the contributors are part of the staff but the members are also allowed 
 ## State
 ![](https://img.shields.io/badge/State-In_production-brightgreen?style=for-the-badge)
 
-![](https://img.shields.io/github/issues/GravenDev/GravenSupport?style=for-the-badge)
+![](https://img.shields.io/github/issues/AsyncCommunityDiscord/AsyncSupport?style=for-the-badge)
 
-![](https://img.shields.io/github/issues-pr/GravenDev/GravenSupport?style=for-the-badge)
+![](https://img.shields.io/github/issues-pr/AsyncCommunityDiscord/AsyncSupport?style=for-the-badge)
 
 --- 
