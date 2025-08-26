@@ -40,7 +40,7 @@ shadowJar {
 }
 
 application {
-    mainClassName = 'yt.graven.gravensupport.Main'
+    mainClass.set('yt.graven.gravensupport.Main')
     setApplicationDefaultJvmArgs(["--add-opens", "java.base/java.net=ALL-UNNAMED"])
 }
 
