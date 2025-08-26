@@ -52,7 +52,7 @@ jobs:
           cp LICENSE.md build/resources/main/config.default.yml build/libs/*-all.jar gh_release
 
       - name: Create release zip file
-        uses: TheDoctor0/zip-release@0.6.2
+        uses: TheDoctor0/zip-release@0.7.6
         with:
           filename: "GravenSupport-${{ github.sha }}.zip"
           directory: ./gh_release
