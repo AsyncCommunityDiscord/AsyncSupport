@@ -1,14 +1,9 @@
-# GravenSupport CI/CD
-# Maintained by AntoineJT
-
-name: GravenSupport CI/CD
+name: AsyncSupport CI/CD
 
 on:
   push:
-    branches: "**"
-    tags-ignore: latest
+    branches: [ "master" ]
   pull_request:
-    branches: "**"
 
 jobs:
   ci:
@@ -26,9 +21,6 @@ jobs:
     - name: Set up Gradle
       uses: gradle/gradle-build-action@v2
 
-    - name: Setup Gradle permission
-      run: chmod +x gradlew
-
     - name: Check code formatting
       run: ./gradlew spotlessCheck
 
@@ -45,7 +37,7 @@ jobs:
   cd:
     needs: ci
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag'
+    if: github.ref_type == 'tag' && github.event_name == 'push'
 
     steps:
       - name: Restore data from cache
