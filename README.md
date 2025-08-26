@@ -10,6 +10,8 @@ All the projects in the <code>AsyncCommunityDiscord</code> organisation are used
 discord.gg/graven</code> both by the moderators and the members.
 Most of the contributors are part of the staff but the members are also allowed to contribute.
 
+⚠️ **Looking for the `TicketTools` repository?**? Head over [here](https://github.com/RedsTom/TicketTools)
+
 ---
 ## Global information
 
