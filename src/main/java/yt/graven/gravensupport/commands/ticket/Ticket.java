@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -44,11 +43,18 @@ public class Ticket {
     private final TicketManager ticketManager;
     private final Embeds embeds;
     private final YamlConfiguration config;
-    @Getter private final User from;
+
+    @Getter
+    private final User from;
+
     private final Guild moderationGuild;
     private final Emoji sentEmote;
-    @Getter private TextChannel to;
-    @Getter private boolean opened;
+
+    @Getter
+    private TextChannel to;
+
+    @Getter
+    private boolean opened;
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -261,12 +267,12 @@ public class Ticket {
 
     private WebhookClient retrieveWebhook() throws IOException {
         List<Webhook> webhooks = to.retrieveWebhooks().complete();
-        return JDAWebhookClient.from(webhooks.isEmpty()
-                ? to.createWebhook(from.getName())
-                        .setAvatar(Icon.from(new URL(from.getEffectiveAvatarUrl()).openStream()))
-                        .complete()
-                : webhooks.get(0)
-        );
+        return JDAWebhookClient.from(
+                webhooks.isEmpty()
+                        ? to.createWebhook(from.getName())
+                                .setAvatar(Icon.from(new URL(from.getEffectiveAvatarUrl()).openStream()))
+                                .complete()
+                        : webhooks.get(0));
     }
 
     public void sendToTicket(Message message) {
@@ -275,7 +281,8 @@ public class Ticket {
             webhook.send(builder.build())
                     .thenAccept(msg -> {
                         message.addReaction(sentEmote).queue();
-                        ticketManager.get(message.getAuthor())
+                        ticketManager
+                                .get(message.getAuthor())
                                 .map(Ticket::getTo)
                                 .ifPresent(textChannel -> updatePinnedMessages(textChannel, msg));
                     })
@@ -361,7 +368,8 @@ public class Ticket {
 
     public void close() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<Message> messages = to.getIterableHistory().takeWhileAsync(Objects::nonNull).join();
+            List<Message> messages =
+                    to.getIterableHistory().takeWhileAsync(Objects::nonNull).join();
             Collections.reverse(messages);
 
             SerializableMessageArray sma = new SerializableMessageArray(
@@ -439,10 +447,12 @@ public class Ticket {
 
     private void updatePinnedMessages(TextChannel textChannel, ReadonlyMessage msg) {
         ErrorHandler handleMaxPinError = new ErrorHandler().handle(ErrorResponse.MAX_MESSAGE_PINS, (exception) -> {
-            textChannel.retrievePinnedMessages()
+            textChannel
+                    .retrievePinnedMessages()
                     .map(pinnedMessages -> pinnedMessages.get(pinnedMessages.size() - 1))
                     .queue(oldestPinnedMessage -> {
-                        textChannel.unpinMessageById(oldestPinnedMessage.getId())
+                        textChannel
+                                .unpinMessageById(oldestPinnedMessage.getId())
                                 .queue(nothing -> pinMessage(textChannel, msg).queue());
                     });
         });
@@ -453,5 +463,4 @@ public class Ticket {
     private RestAction<Void> pinMessage(TextChannel channel, ReadonlyMessage message) {
         return channel.pinMessageById(message.getId());
     }
-
 }

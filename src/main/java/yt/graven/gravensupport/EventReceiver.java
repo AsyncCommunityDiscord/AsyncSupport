@@ -88,7 +88,8 @@ public class EventReceiver extends ListenerAdapter {
          */
         if (event.getChannelType() == ChannelType.PRIVATE) {
             if (!ticketManager.exists(event.getAuthor())) return;
-            Ticket ticket = ticketManager.get(event.getAuthor())
+            Ticket ticket = ticketManager
+                    .get(event.getAuthor())
                     .orElseThrow(() -> new RuntimeException("Ticket could not be found but exists"));
 
             if (!ticket.isOpened()) return;

@@ -3,8 +3,6 @@ package yt.graven.gravensupport.commands.ticket.interactions;
 import java.awt.*;
 import java.time.Instant;
 import java.util.Optional;
-
-import club.minnced.discord.webhook.receive.ReadonlyMessage;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -143,12 +141,10 @@ public class ConfirmMessageHandler implements InteractionAction<ButtonInteractio
             MessageChannelUnion channel = message.getChannel();
             channel.retrievePinnedMessages()
                     .map(pinnedMessages -> pinnedMessages.get(pinnedMessages.size() - 1))
-                    .queue(oldestPinnedMessage ->
-                        channel.unpinMessageById(oldestPinnedMessage.getId())
-                                .queue(nothing -> message.pin().queue()));
+                    .queue(oldestPinnedMessage -> channel.unpinMessageById(oldestPinnedMessage.getId())
+                            .queue(nothing -> message.pin().queue()));
         });
 
         message.pin().queue(null, handleMaxPinError);
     }
-
 }

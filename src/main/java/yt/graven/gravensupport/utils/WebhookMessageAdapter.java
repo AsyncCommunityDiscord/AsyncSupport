@@ -31,7 +31,8 @@ public class WebhookMessageAdapter {
             EnumSet<Message.MentionType> parse = data.getAllowedMentions();
             allowedMentions.withParseUsers(parse.contains(Message.MentionType.USER));
             allowedMentions.withParseRoles(parse.contains(Message.MentionType.ROLE));
-            allowedMentions.withParseEveryone(parse.contains(Message.MentionType.EVERYONE) || parse.contains(Message.MentionType.HERE));
+            allowedMentions.withParseEveryone(
+                    parse.contains(Message.MentionType.EVERYONE) || parse.contains(Message.MentionType.HERE));
             builder.setAllowedMentions(allowedMentions);
         } else if (message instanceof ReceivedMessage) {
             AllowedMentions allowedMentions = AllowedMentions.none();

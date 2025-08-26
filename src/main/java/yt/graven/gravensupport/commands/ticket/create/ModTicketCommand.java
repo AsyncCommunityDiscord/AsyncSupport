@@ -21,7 +21,6 @@ import yt.graven.gravensupport.commands.ticket.TicketOpeningReason;
 import yt.graven.gravensupport.utils.commands.Command;
 import yt.graven.gravensupport.utils.commands.ICommand;
 import yt.graven.gravensupport.utils.exceptions.CommandCancelledException;
-import yt.graven.gravensupport.utils.exceptions.TicketAlreadyExistsException;
 import yt.graven.gravensupport.utils.exceptions.TicketException;
 import yt.graven.gravensupport.utils.messages.Embeds;
 
@@ -105,9 +104,12 @@ public class ModTicketCommand implements ICommand {
         String reason = reasonOption.getAsString();
 
         if (ticketManager.exists(user)) {
-            embeds.ticketAlreadyExistsMessage(ticketManager.get(user)
-                            .orElseThrow(() -> new TicketException("Ticket not found for user " + user.getId()))
-                            .getTo(), false)
+            embeds.ticketAlreadyExistsMessage(
+                            ticketManager
+                                    .get(user)
+                                    .orElseThrow(() -> new TicketException("Ticket not found for user " + user.getId()))
+                                    .getTo(),
+                            false)
                     .editReply(reply)
                     .queue();
             return;

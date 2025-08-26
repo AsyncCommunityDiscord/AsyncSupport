@@ -66,9 +66,7 @@ public class CloseCommand implements ICommand {
             return;
         }
 
-        embeds.successMessage("Closing ticket")
-                .reply(event)
-                .queue();
+        embeds.successMessage("Closing ticket").reply(event).queue();
 
         ticket.get().close();
     }

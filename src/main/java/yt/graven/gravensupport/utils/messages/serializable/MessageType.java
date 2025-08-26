@@ -10,7 +10,8 @@ public enum MessageType {
     public static MessageType fromMessage(Message message) {
         if (!message.getAuthor().isBot()) {
             return MODERATION;
-        } else if (message.getAuthor().getIdLong() == message.getJDA().getSelfUser().getIdLong()) {
+        } else if (message.getAuthor().getIdLong()
+                == message.getJDA().getSelfUser().getIdLong()) {
             return BOT;
         }
         return TARGET;

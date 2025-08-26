@@ -2,14 +2,12 @@ package yt.graven.gravensupport.utils.messages.serializable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -62,8 +60,10 @@ public class SerializableMessageArray {
                 .orElseThrow();
 
         for (Message.Attachment attachment : message.getAttachments()) {
-            CompletableFuture<InputStream> attachmentStream = attachment.getProxy().download();
-            Message attachmentMessage = attachmentsChannel.sendMessage("Attachment of @" + message.getAuthor().getAsTag())
+            CompletableFuture<InputStream> attachmentStream =
+                    attachment.getProxy().download();
+            Message attachmentMessage = attachmentsChannel
+                    .sendMessage("Attachment of @" + message.getAuthor().getAsTag())
                     .addFiles(FileUpload.fromData(attachmentStream.join(), attachment.getFileName()))
                     .complete();
 

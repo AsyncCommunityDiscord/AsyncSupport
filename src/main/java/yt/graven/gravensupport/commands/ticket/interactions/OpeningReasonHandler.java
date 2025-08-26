@@ -54,8 +54,8 @@ public class OpeningReasonHandler implements InteractionAction<StringSelectInter
         if (selectedOption.getValue().equalsIgnoreCase("op-other")) {
             Modal modal = Modal.create("op-other-reason", "Pourquoi ouvrez-vous un ticket ?")
                     .addComponents(
-                            ActionRow.of(
-                                    TextInput.create("reason", "Raison (en quelques mots)", TextInputStyle.SHORT).build()))
+                            ActionRow.of(TextInput.create("reason", "Raison (en quelques mots)", TextInputStyle.SHORT)
+                                    .build()))
                     .build();
 
             event.replyModal(modal).queue();
