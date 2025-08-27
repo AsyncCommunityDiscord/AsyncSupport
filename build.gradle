@@ -6,15 +6,18 @@ plugins {
     id 'com.diffplug.spotless' version '7.2.1'
 }
 
-group 'yt.graven'
-version '1.0-SNAPSHOT'
+group = 'yt.graven'
+version = '1.0-SNAPSHOT'
 
-sourceCompatibility = targetCompatibility = '17'
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
     maven {
-        url 'https://jitpack.io/'
+        url = 'https://jitpack.io/'
     }
 }
 
@@ -34,22 +37,21 @@ test {
     useJUnitPlatform()
 }
 
-shadowJar {
-    project.configurations.implementation.canBeResolved(true)
-    configurations = [project.configurations.implementation]
+application {
+    mainClass = 'yt.graven.gravensupport.Main'
+    applicationDefaultJvmArgs = ["--add-opens", "java.base/java.net=ALL-UNNAMED"]
 }
 
-application {
-    mainClass.set('yt.graven.gravensupport.Main')
-    setApplicationDefaultJvmArgs(["--add-opens", "java.base/java.net=ALL-UNNAMED"])
-}
 
 compileJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs += "--enable-preview"
+}
+
+jar {
     manifest {
         attributes('Main-Class': 'yt.graven.gravensupport.Main')
     }
-    options.encoding = "UTF-8"
-    options.compilerArgs += "--enable-preview"
 }
 
 
