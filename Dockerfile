@@ -1,4 +1,4 @@
-FROM gradle:9.0-jdk17-alpine as builder
+FROM gradle:9.0.0-jdk17-corretto-al2023 AS builder
 
 WORKDIR /build
 COPY ./ /build
